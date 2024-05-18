@@ -1,17 +1,10 @@
-import { useState, useEffect } from 'react';
-import './App.css';
+import Button from "./fullscreen-button";
 
 function App() {
-  const [count, setCount] = useState(0);
-
-  useEffect(() => {
-    setCount(1);
-  }, []);
-
   return (
-    <div>
-      <h1 className="text-8xl font-extrabold">Hello, World!</h1>
-      <h2>{count}</h2>
+    <div className="bg-gray-900 h-full">
+      {/* TODO: do this  */}
+      <Button />
     </div>
   );
 }
