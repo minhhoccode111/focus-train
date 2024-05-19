@@ -1,6 +1,10 @@
 import { useState, useEffect } from "react";
 
-const FullscreenButton = () => {
+type FullscreenButtonPropsType = {
+  className: string;
+};
+
+const FullscreenButton = ({ className }: FullscreenButtonPropsType) => {
   const [isFullScreen, setIsFullScreen] = useState(false);
 
   useEffect(() => {
@@ -31,8 +35,12 @@ const FullscreenButton = () => {
   };
 
   return (
-    <button onClick={toggleFullScreen}>
-      {isFullScreen ? "Exit Full Screen" : "Go Full Screen"}
+    <button
+      type="button"
+      onClick={toggleFullScreen}
+      className={className + " " + (isFullScreen ? "hidden" : "")}
+    >
+      {isFullScreen ? "Exit Fullscreen" : "Fullscreen"}
     </button>
   );
 };
