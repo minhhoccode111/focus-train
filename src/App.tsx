@@ -1,4 +1,3 @@
-import Button from "./fullscreen-button";
 import {
   CSSProperties,
   useCallback,
@@ -7,6 +6,10 @@ import {
   useState,
 } from "react";
 
+import Button from "./fullscreen-button";
+
+import { createNoise2D } from "simplex-noise";
+
 function App() {
   const [isStarted, setIsStarted] = useState(false);
 
@@ -14,7 +17,7 @@ function App() {
 
   const [borderSize, setBorderSize] = useState(2);
 
-  const [dotSize, setDotSize] = useState(2);
+  const [dotSize, setDotSize] = useState(4);
 
   // time setting
   const incSecondCount = useCallback(
@@ -79,17 +82,9 @@ function App() {
     [borderSize],
   );
 
-  // because tailwind can't use dynamic variables to we have to set style
-  // despite the fact that this is not best practice
-  const dotStyles: CSSProperties = {
-    boxSizing: "content-box",
-    backgroundColor: "red", // TODO: color picker
-    borderColor: "white", // TODO: color picker
-    borderStyle: "solid",
-    borderWidth: getBorderSize(),
-    height: getDotSize(),
-    width: getDotSize(),
-  };
+  // TODO: implement an algorithm to move the dot
+  const [dotPosistion, setDotPosition] = useState({ x: 50, y: 50 });
+  const noise = useMemo(() => createNoise2D(), []);
 
   // work with counter
   useEffect(() => {
@@ -106,7 +101,21 @@ function App() {
     } else {
       setIsStarted(false);
     }
-  }, [isStarted, secondCount]);
+  }, [isStarted, secondCount, dotPosistion, noise]);
+
+  // because tailwind can't use dynamic variables to we have to set style
+  // despite the fact that this is not best practice
+  const dotStyles: CSSProperties = {
+    boxSizing: "content-box",
+    backgroundColor: "red", // TODO: color picker
+    borderColor: "white", // TODO: color picker
+    borderStyle: "solid",
+    borderWidth: getBorderSize(),
+    height: getDotSize(),
+    width: getDotSize(),
+    top: dotPosistion.y + "%",
+    left: dotPosistion.x + "%",
+  };
 
   return (
     <div className="bg-gray-800 h-full flex flex-col gap-1" id="wrapper">
@@ -169,7 +178,7 @@ function App() {
       <main className="flex-1 relative">
         <div
           style={dotStyles}
-          className={`aspect-square rounded-full absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2`}
+          className={`aspect-square rounded-full absolute -translate-x-1/2 -translate-y-1/2`}
         ></div>
       </main>
 
