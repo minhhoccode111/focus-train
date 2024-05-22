@@ -8,8 +8,6 @@ import {
 
 import Button from "./fullscreen-button";
 
-import { createNoise2D } from "simplex-noise";
-
 function App() {
   const [isStarted, setIsStarted] = useState(false);
 
@@ -82,9 +80,32 @@ function App() {
     [borderSize],
   );
 
-  // TODO: implement an algorithm to move the dot
   const [dotPosistion, setDotPosition] = useState({ x: 50, y: 50 });
-  const noise = useMemo(() => createNoise2D(), []);
+  const [isSmooth, setIsSmooth] = useState(true);
+
+  // moving dot
+  useEffect(() => {
+    if (isStarted && secondCount > 0) {
+      const interval = setInterval(() => {
+        const rd = Math.random();
+        const n = rd < 0.35 ? rd : -rd;
+
+        const ox = dotPosistion.x;
+        const oy = dotPosistion.y;
+
+        const x = Math.random() < 0.5 ? ox + n : ox - n;
+        const y = Math.random() < 0.5 ? oy + n : oy - n;
+
+        if (x < 1 || x > 99 || y < 1 || y > 99)
+          setDotPosition({ x: 50, y: 50 });
+        else setDotPosition({ x, y });
+      }, 1000 / 60); // 60 fps
+
+      return () => clearInterval(interval);
+    } else {
+      setIsStarted(false);
+    }
+  }, [dotPosistion, isStarted, secondCount]);
 
   // work with counter
   useEffect(() => {
@@ -101,7 +122,14 @@ function App() {
     } else {
       setIsStarted(false);
     }
-  }, [isStarted, secondCount, dotPosistion, noise]);
+  }, [isStarted, secondCount]);
+
+  const toggleSmooth = useCallback(
+    function () {
+      return isSmooth ? "150ms" : "0ms";
+    },
+    [isSmooth],
+  );
 
   // because tailwind can't use dynamic variables to we have to set style
   // despite the fact that this is not best practice
@@ -115,6 +143,9 @@ function App() {
     width: getDotSize(),
     top: dotPosistion.y + "%",
     left: dotPosistion.x + "%",
+    transitionProperty: "all",
+    transitionDuration: toggleSmooth(),
+    transitionTimingFunction: "cubic-bezier(0.4, 0, 0.2, 1)",
   };
 
   return (
@@ -135,6 +166,24 @@ function App() {
             className={btn + " " + (isStarted ? "" : "opacity-30")}
           >
             stop
+          </button>
+        </div>
+
+        <div className="">
+          <button
+            type="button"
+            onClick={() => setIsSmooth(true)}
+            className={btn + " " + (isSmooth ? "opacity-30" : "")}
+          >
+            smooth
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setIsSmooth(false)}
+            className={btn + " " + (isSmooth ? "" : "opacity-30")}
+          >
+            crazy
           </button>
         </div>
 
@@ -178,7 +227,7 @@ function App() {
       <main className="flex-1 relative">
         <div
           style={dotStyles}
-          className={`aspect-square rounded-full absolute -translate-x-1/2 -translate-y-1/2`}
+          className={`aspect-square rounded-full absolute -translate-x-1/2 -translate-y-1/2 transition-all`}
         ></div>
       </main>
 
